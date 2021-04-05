@@ -1,26 +1,47 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ChangeEvent, useState } from "react";
+import "./App.css";
+import axios from "axios";
 
-function App() {
+const App: React.FC = () => {
+  const [weather, setWeather] = useState(null);
+  const [weatherTwo, setWeatherTwo] = useState(null);
+  const [inputWeather, setInputWeather] = useState("");
+
+  const changeInput = (e: ChangeEvent<HTMLInputElement>) => {
+    setInputWeather(e.target.value);
+  };
+  const onSubmit = (e: React.FormEvent): void => {
+    e.preventDefault();
+    axios
+      .get(
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.REACT_APP_API}&q=${inputWeather}&aqi=no`
+      )
+      .then((response) => {
+        setWeather(response.data.location.localtime);
+        setWeatherTwo(response.data.location.name);
+      })
+      .catch((err) => console.log(err));
+
+    setInputWeather("");
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>{weatherTwo}</h1>
+      <p>{weather}</p>
+
+      <form onSubmit={onSubmit}>
+        <input
+          type="text"
+          name="location"
+          placeholder="Location"
+          value={inputWeather}
+          onChange={changeInput}
+        />
+        <button>SEARCH LOCATION</button>
+      </form>
     </div>
   );
-}
+};
 
 export default App;
